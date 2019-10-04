@@ -13,16 +13,13 @@ s.headers.update({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleW
 def main():
     getuserdata()
     url = 'https://fystat-ans.chaoxing.com/log/setlog?personid='+cpi+'&courseId='+courseId+'&classId='+classId+'&encode=' +encode
-    url2 = 'https://fystat-ans.chaoxing.com/log/setlog?personid='+cpi+'&courseId='+courseId+'&classId='+classId+'&encode='+encode+'&chapterId=158830768&_=1570014074135'
     i = 0
     while 1:
         web = s.get(url,verify=False)
         time.sleep(5)
-        web = s.get(url2,verify=False)
         i+=1
         print(i)
-        time.sleep(5)
-        if(i == 2000):
+        if(i == 4000):
             break
     main()
 
