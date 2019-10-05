@@ -61,6 +61,8 @@ def getuserdata():
     web = s.get('http://mooc1-1.chaoxing.com/visit/courses')
     h1 = etree.HTML(web.text)
     geturl = h1.xpath('//div[@class = "Mcon1img httpsClass"]/a/@href')
+    name = h1.xpath('//h3[@class = "clearfix"]/a/text()')
+    print(name)
     url = 'https://mooc1-1.chaoxing.com' + geturl[0]
     url_query = urlparse(url).query
     userdata = dict([(k, v[0]) for k, v in parse_qs(url_query).items()])
