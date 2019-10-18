@@ -36,7 +36,7 @@ def login():
     data = {'refer_0x001': 'http%3A%2F%2Fi.mooc.chaoxing.com',
             'pid':'-1',
             'pidName':'',
-            'fid':'1467',
+            'fid':'1467',    #修改院校，1467:a系统
             'fidName':'',
             'allowJoin':'0',
             'isCheckNumCode':'1',
@@ -82,5 +82,9 @@ def getuserdata():
     
 
 if __name__ == "__main__":
-    login()
-    main()
+    print("登录成功后等待访问数慢慢增加")
+    try:
+        login()
+        main()
+    except:
+        print("登录过期，请重启程序")
