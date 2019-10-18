@@ -19,7 +19,7 @@ def main():
         time.sleep(5)
         i+=1
         print(i)
-        if(i == 4000):
+        if(i == 500):
             break
     main()
 
