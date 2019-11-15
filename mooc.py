@@ -5,7 +5,7 @@ from PIL import Image,ImageDraw,ImageChops
 from lxml import etree
 from urllib.parse import urlparse, parse_qs
 
-#应该只支持同一时间只有一个开放的课程，同时有2个或以上估计得自己填参数
+#大概支持多个课程了吧。。。大概。。。
 
 s = requests.Session()
 s.headers.update({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36'})
@@ -62,8 +62,28 @@ def getuserdata():
     h1 = etree.HTML(web.text)
     geturl = h1.xpath('//div[@class = "Mcon1img httpsClass"]/a/@href')
     name = h1.xpath('//h3[@class = "clearfix"]/a/text()')
+    print("-----------课程名称-----------")
     print(name)
-    url = 'https://mooc1-1.chaoxing.com' + geturl[0]
+    print("------------------------------")
+    global count
+    try:
+        count
+    except NameError:
+        count_exist = False
+    else:
+        count_exist = True
+    if(count_exist):
+        pass
+    else:
+        if(len(name) == 1):
+            count = 0
+        else:
+            count = int(input("请用数字选择要访问的课程(从1开始)："))
+            if(count == 1):
+                count = 0
+            else:
+                count = count*2-1
+    url = 'https://mooc1-1.chaoxing.com' + geturl[count]
     url_query = urlparse(url).query
     userdata = dict([(k, v[0]) for k, v in parse_qs(url_query).items()])
     global cpi, enc, courseId, classId, encode
@@ -87,4 +107,4 @@ if __name__ == "__main__":
         login()
         main()
     except:
-        print("登录过期，请重启程序")
+        print("登录信息错误，请重启程序")
