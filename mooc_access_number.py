@@ -5,10 +5,11 @@ from PIL import Image,ImageDraw,ImageChops
 from lxml import etree
 from urllib.parse import urlparse, parse_qs
 
-#大概支持多个课程了吧。。。大概。。。
+username = ""   #登录账号
+password = ""   #登录密码
 
 s = requests.Session()
-s.headers.update({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36'})
+s.headers.update({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36'})
 
 def main():
     getuserdata()
@@ -25,35 +26,24 @@ def main():
 
 
 def login():
-    username = input("登录账号(请使用手机号登录)：")
-    password = input("登录密码：")
-    url = "https://passport2.chaoxing.com/num/code"
-    web = s.get(url,verify=False)
-    img = Image.open(BytesIO(web.content))
-    img.show()
-    numcode = input('验证码：')
-    url = 'http://passport2.chaoxing.com/login?refer=http://i.mooc.chaoxing.com'
-    data = {'refer_0x001': 'http%3A%2F%2Fi.mooc.chaoxing.com',
-            'pid':'-1',
-            'pidName':'',
-            'fid':'1467',    #修改院校，1467:a系统
-            'fidName':'',
-            'allowJoin':'0',
-            'isCheckNumCode':'1',
-            'f':'0',
-            'productid':'',
-            'uname':username,
-            'password':password,
-            'numcode':numcode,
-            'verCode':''
-            }
-    web = s.post(url,data=data,verify=False)
+    global uid,username,password
+    if(username == "" or password == ""):
+        username = input("登录账号：")
+        password = input("登录密码：")
+    url="http://i.chaoxing.com/vlogin?passWord="+str(password)+"&userName="+str(username)
+    res= s.get(url)
+    for key, value in res.cookies.items():
+        if key=="_uid":
+            uid=value
     web = s.get('http://i.mooc.chaoxing.com/space/index',verify=False)
     if('账号管理' in str(web.text)):
         print('Login success!')
         return s
     else:
-        print('账号密码或验证码有误，请重试。')
+        print(username,password)
+        print('账号密码有误，请重试。')
+        username = ""
+        password = ""
         login()
 
 
@@ -78,6 +68,7 @@ def getuserdata():
         if(len(name) == 1):
             count = 0
         else:
+            #count = 1
             count = int(input("请用数字选择要访问的课程(从1开始)："))
             if(count == 1):
                 count = 0
@@ -94,10 +85,9 @@ def getuserdata():
     web = s.get(url)
     h2 = etree.HTML(web.text)
     encodeurl = h2.xpath('//script[@type = "text/javascript"]/@src')
-    url_query = urlparse(encodeurl[4]).query
+    url_query = urlparse(encodeurl[6]).query
     userdata = dict([(k, v[0]) for k, v in parse_qs(url_query).items()])
     encode = userdata["encode"]
-    return s
 
     
 
@@ -107,4 +97,6 @@ if __name__ == "__main__":
         login()
         main()
     except:
-        print("登录信息错误，请重启程序")
+        print("登录信息尝试重新登录")
+        login()
+        main()
