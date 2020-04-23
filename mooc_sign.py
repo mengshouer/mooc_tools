@@ -41,7 +41,7 @@ def sign(aid, uid):
     if (res.text == "success"):
         print(" 签到成功！")
         activates.append(aid)
-    else if(res.text == "您已签到过了"):
+    elif(res.text == "您已签到过了"):
         print(res.text)
         activates.append(aid)
     else:
