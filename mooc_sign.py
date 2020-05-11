@@ -5,6 +5,7 @@ from urllib.parse import urlparse, parse_qs
 
 username = ""   #登录账号
 password = ""   #登录密码
+sckey = ""      #Server酱推送提醒key
 
 s = requests.Session()
 s.headers.update({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36'})
@@ -40,11 +41,25 @@ def sign(aid, uid):
     res = s.get(url,verify=False)
     if (res.text == "success"):
         print(" 签到成功！")
+        if sckey != "":
+            data = {
+                "text" : "签到成功",
+                "desp" : "aid" + str(aid)
+                }
+            sckeyurl = "http://sc.ftqq.com/"+str(sckey)+".send"
+            web = s.post(sckeyurl, data=data, verify=False)
         activates.append(aid)
     elif(res.text == "您已签到过了"):
         print(res.text)
         activates.append(aid)
     else:
+        if sckey != "":
+            data = {
+                "text" : "签到失败",
+                "desp" : "aid" + str(aid)
+                }
+            sckeyurl = "http://sc.ftqq.com/"+str(sckey)+".send"
+            web = s.post(sckeyurl, data=data, verify=False)
         print("签到失败")
 
         
