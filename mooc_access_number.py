@@ -50,7 +50,6 @@ def login():
 def getuserdata():
     web = s.get('http://mooc1-1.chaoxing.com/visit/courses')
     h1 = etree.HTML(web.text)
-    geturl = h1.xpath('//div[@class = "Mcon1img httpsClass"]/a/@href')
     name = h1.xpath('//h3[@class = "clearfix"]/a/text()')
     print("-----------课程名称-----------")
     print(name)
@@ -68,13 +67,16 @@ def getuserdata():
         if(len(name) == 1):
             count = 0
         else:
-            #count = 1
-            count = int(input("请用数字选择要访问的课程(从1开始)："))
-            if(count == 1):
-                count = 0
-            else:
-                count = count*2-1
-    url = 'https://mooc1-1.chaoxing.com' + geturl[count]
+            #count = 0
+            count = int(input("请用数字选择要访问的课程(从0开始)："))
+    geturl = h1.xpath('//div[@class = "Mcon1img httpsClass"]/a/@href')
+    i = 0
+    courseurl = []
+    for temp in range(0,len(geturl)):
+        if("/mycourse/studentcourse" in geturl[i]):
+            courseurl.append(geturl[i])
+        i += 1
+    url = 'https://mooc1-1.chaoxing.com' + courseurl[count]
     url_query = urlparse(url).query
     userdata = dict([(k, v[0]) for k, v in parse_qs(url_query).items()])
     global cpi, enc, courseId, classId, encode
