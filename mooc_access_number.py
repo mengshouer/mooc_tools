@@ -36,6 +36,7 @@ def login():
         if key=="_uid":
             uid=value
     web = s.get('http://i.mooc.chaoxing.com/space/index',verify=False)
+    time.sleep(2)
     if('账号管理' in str(web.text)):
         print('Login success!')
         return s
