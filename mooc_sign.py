@@ -13,6 +13,81 @@ s = requests.Session()
 s.headers.update({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36'})
 activates = []
 
+def sign(aid, uid):
+    global activates
+    url = "https://mobilelearn.chaoxing.com/pptSign/stuSignajax?activeId=" + aid + "&uid=" + uid + "&clientip=&latitude=-1&longitude=-1&appType=15&fid=0"
+    res = s.get(url,verify=False)
+    if (res.text == "success"):
+        print(" 签到成功！")
+        if sckey != "":
+            data = {
+                "text" : "签到成功",
+                "desp" : "aid" + str(aid)
+                }
+            sckeyurl = "http://sc.ftqq.com/"+str(sckey)+".send"
+            web = s.post(sckeyurl, data=data, verify=False)
+        activates.append(aid)
+    elif(res.text == "您已签到过了"):
+        print(res.text)
+        activates.append(aid)
+    else:
+        if sckey != "":
+            data = {
+                "text" : "签到失败",
+                "desp" : "aid" + str(aid)
+                }
+            sckeyurl = "http://sc.ftqq.com/"+str(sckey)+".send"
+            web = s.post(sckeyurl, data=data, verify=False)
+        print("签到失败")
+
+        
+    ##########pc版签到############
+    '''
+    url = f'https://mobilelearn.chaoxing.com/widget/pcpick/stu/index?courseId='+courseId+'&jclassId='+classId
+    web = s.get(url,verify=False)
+    h1 = etree.HTML(web.text)
+    taskdata = h1.xpath('//dd[@class = "green"]/text()')
+    while 1:
+        if("签到" in taskdata):
+            a = h1.xpath('//div[@id = "startList"]//div[@class = "Mct"]/@onclick')[0]
+            aid = re.findall(r'[(](.*?)[)]', a)[0].split(',')[0]
+            fid = h1.xpath('//input[@id = "fid"]/@value')[0]
+            signurl = f'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/preSign?activeId='+aid+'&classId='+classId+'&fid='+fid+'&courseId='+courseId
+            web = s.get(signurl,verify=False)
+            print(web.text)
+            break
+        else:
+            web = s.get(url,verify=False)
+            print("签到暂未开通")
+            h1 = etree.HTML(web.text)
+            taskdata = h1.xpath('//dd[@class = "green"]/text()')
+            time.sleep(3)
+    '''
+
+def login():
+    global uid,username,password
+    if(username == "" or password == ""):
+        username = input("登录账号：")
+        password = input("登录密码：")
+    #旧接口，已失效
+    #url="http://i.chaoxing.com/vlogin?passWord="+str(password)+"&userName="+str(username)
+    url = f'https://passport2-api.chaoxing.com/v11/loginregister?uname='+str(username)+'&code='+str(password)
+    res= s.get(url)
+    if("验证通过" in str(res.text)):
+        print('Login success!')
+        for key, value in res.cookies.items():
+            if key=="_uid":
+                uid=value
+        return s
+    else:
+        print(username,password)
+        print('账号密码有误，请重试。')
+        username = ""
+        password = ""
+        login()
+
+
+'''
 def captchalogin(username,password):
     if(username == "" or password == ""):
         username = input("登录账号：")
@@ -92,80 +167,6 @@ def captchalogin(username,password):
         username = ""
         password = ""
         captchalogin(username,password)
-
-def sign(aid, uid):
-    global activates
-    url = "https://mobilelearn.chaoxing.com/pptSign/stuSignajax?activeId=" + aid + "&uid=" + uid + "&clientip=&latitude=-1&longitude=-1&appType=15&fid=0"
-    res = s.get(url,verify=False)
-    if (res.text == "success"):
-        print(" 签到成功！")
-        if sckey != "":
-            data = {
-                "text" : "签到成功",
-                "desp" : "aid" + str(aid)
-                }
-            sckeyurl = "http://sc.ftqq.com/"+str(sckey)+".send"
-            web = s.post(sckeyurl, data=data, verify=False)
-        activates.append(aid)
-    elif(res.text == "您已签到过了"):
-        print(res.text)
-        activates.append(aid)
-    else:
-        if sckey != "":
-            data = {
-                "text" : "签到失败",
-                "desp" : "aid" + str(aid)
-                }
-            sckeyurl = "http://sc.ftqq.com/"+str(sckey)+".send"
-            web = s.post(sckeyurl, data=data, verify=False)
-        print("签到失败")
-
-        
-    ##########pc版签到############
-    '''
-    url = f'https://mobilelearn.chaoxing.com/widget/pcpick/stu/index?courseId='+courseId+'&jclassId='+classId
-    web = s.get(url,verify=False)
-    h1 = etree.HTML(web.text)
-    taskdata = h1.xpath('//dd[@class = "green"]/text()')
-    while 1:
-        if("签到" in taskdata):
-            a = h1.xpath('//div[@id = "startList"]//div[@class = "Mct"]/@onclick')[0]
-            aid = re.findall(r'[(](.*?)[)]', a)[0].split(',')[0]
-            fid = h1.xpath('//input[@id = "fid"]/@value')[0]
-            signurl = f'https://mobilelearn.chaoxing.com/widget/sign/pcStuSignController/preSign?activeId='+aid+'&classId='+classId+'&fid='+fid+'&courseId='+courseId
-            web = s.get(signurl,verify=False)
-            print(web.text)
-            break
-        else:
-            web = s.get(url,verify=False)
-            print("签到暂未开通")
-            h1 = etree.HTML(web.text)
-            taskdata = h1.xpath('//dd[@class = "green"]/text()')
-            time.sleep(3)
-    '''
-
-'''           
-def login():
-    global uid,username,password
-    if(username == "" or password == ""):
-        username = input("登录账号：")
-        password = input("登录密码：")
-    url="http://i.chaoxing.com/vlogin?passWord="+str(password)+"&userName="+str(username)
-    res= s.get(url)
-    for key, value in res.cookies.items():
-        if key=="_uid":
-            uid=value
-    web = s.get('http://i.mooc.chaoxing.com/space/index',verify=False)
-    time.sleep(2)
-    if('账号管理' in str(web.text)):
-        print('Login success!')
-        return s
-    else:
-        print(username,password)
-        print('账号密码有误，请重试。')
-        username = ""
-        password = ""
-        login()
 '''
 
 def getuserdata():
@@ -231,7 +232,8 @@ def main():
 if __name__ == "__main__":
     print("登录成功后等待签到开始")
     try:
-        captchalogin(username,password)
+        #captchalogin(username,password)
+        login()
         main()
     except Exception as e:
         print('repr(e):', repr(e))

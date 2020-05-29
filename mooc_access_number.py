@@ -11,6 +11,29 @@ password = ""   #登录密码
 s = requests.Session()
 s.headers.update({'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.122 Safari/537.36'})
 
+def login():
+    global uid,username,password
+    if(username == "" or password == ""):
+        username = input("登录账号：")
+        password = input("登录密码：")
+    #旧接口，已失效
+    #url="http://i.chaoxing.com/vlogin?passWord="+str(password)+"&userName="+str(username)
+    url = f'https://passport2-api.chaoxing.com/v11/loginregister?uname='+str(username)+'&code='+str(password)
+    res= s.get(url)
+    if("验证通过" in str(res.text)):
+        print('Login success!')
+        for key, value in res.cookies.items():
+            if key=="_uid":
+                uid=value
+        return s
+    else:
+        print(username,password)
+        print('账号密码有误，请重试。')
+        username = ""
+        password = ""
+        login()
+
+'''
 def captchalogin(username,password):
     if(username == "" or password == ""):
         username = input("登录账号：")
@@ -86,30 +109,8 @@ def captchalogin(username,password):
         username = ""
         password = ""
         captchalogin(username,password)
+'''
 
-'''
-def login():
-    global uid,username,password
-    if(username == "" or password == ""):
-        username = input("登录账号：")
-        password = input("登录密码：")
-    url="http://i.chaoxing.com/vlogin?passWord="+str(password)+"&userName="+str(username)
-    res= s.get(url)
-    for key, value in res.cookies.items():
-        if key=="_uid":
-            uid=value
-    web = s.get('http://i.mooc.chaoxing.com/space/index',verify=False)
-    time.sleep(2)
-    if('账号管理' in str(web.text)):
-        print('Login success!')
-        return s
-    else:
-        print(username,password)
-        print('账号密码有误，请重试。')
-        username = ""
-        password = ""
-        login()
-'''
 
 
 def getuserdata():
@@ -178,9 +179,11 @@ def main():
 if __name__ == "__main__":
     print("登录成功后等待访问数慢慢增加，显示的数字并不代表访问数，只是用于计数")
     try:
-        captchalogin(username,password)
+        #captchalogin(username,password)
+        login()
         main()
     except:
         print("登录信息尝试重新登录")
-        captchalogin(username,password)
+        #captchalogin(username,password)
+        login()
         main()
