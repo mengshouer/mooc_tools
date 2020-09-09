@@ -139,7 +139,7 @@ def getuserdata():
     i = 0
     courseurl = []
     for temp in range(0,len(geturl)):
-        if("/mycourse/studentcourse" in geturl[i]):
+        if("course" in geturl[i]):
             courseurl.append(geturl[i])
         i += 1
     url = 'https://mooc1-1.chaoxing.com' + courseurl[count]
@@ -147,8 +147,8 @@ def getuserdata():
     userdata = dict([(k, v[0]) for k, v in parse_qs(url_query).items()])
     global cpi, enc, courseId, classId, encode
     cpi = userdata["cpi"]
-    enc = userdata["enc"]
-    courseId = userdata["courseId"]
+    #enc = userdata["enc"]
+    courseId = userdata["courseid"]
     classId = userdata["clazzid"]
     web = s.get(url)
     h2 = etree.HTML(web.text)
